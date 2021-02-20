@@ -52,7 +52,7 @@ class SegDetectorModel(nn.Module):
             data = batch['image'].to(self.device)
         else:
             data = batch.to(self.device)
-        data = data.float()
+        # data = data.float()    # diff
         pred = self.model(data, training=self.training)
 
         if self.training:

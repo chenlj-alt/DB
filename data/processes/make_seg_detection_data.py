@@ -93,10 +93,14 @@ class MakeSegDetectionData(DataProcess):
         return polygons, ignore_tags
 
     def polygon_area(self, polygon):
-        edge = 0
-        for i in range(polygon.shape[0]):
-            next_index = (i + 1) % polygon.shape[0]
-            edge += (polygon[next_index, 0] - polygon[i, 0]) * (polygon[next_index, 1] - polygon[i, 1])
+        # NOTE: when polygon is horizontal, the result is error!
+        # edge = 0
+        # for i in range(polygon.shape[0]):
+        #     next_index = (i + 1) % polygon.shape[0]
+        #     edge += (polygon[next_index, 0] - polygon[i, 0]) * (polygon[next_index, 1] - polygon[i, 1])
+        #
+        # return edge / 2.
 
-        return edge / 2.
+        return cv2.contourArea(np.int32(polygon), True)
+
 
