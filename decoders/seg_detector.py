@@ -112,7 +112,62 @@ class SegDetector(nn.Module):
 
             return nn.Sequential(module_list)
         else:
-            return nn.ConvTranspose2d(in_channels, out_channels, 2, 2)
+            return nn.ConvTranspose2d(in_channels, out_channels, 2, 2, bias=bias)
+
+    def load_3rd_state_dict(self, _3rd_name, _state):
+        to_load_state_dict = OrderedDict()
+        if _3rd_name == 'paddle':
+            # for index, param in enumerate(self.named_parameters()):
+            #     print(param[0])
+            to_load_state_dict['in5.weight'] = torch.Tensor(_state[f'conv2d_23.w_0'])
+            to_load_state_dict['in4.weight'] = torch.Tensor(_state[f'conv2d_24.w_0'])
+            to_load_state_dict['in3.weight'] = torch.Tensor(_state[f'conv2d_25.w_0'])
+            to_load_state_dict['in2.weight'] = torch.Tensor(_state[f'conv2d_26.w_0'])
+
+            to_load_state_dict['out5.0.weight'] = torch.Tensor(_state[f'conv2d_27.w_0'])
+            to_load_state_dict['out4.0.weight'] = torch.Tensor(_state[f'conv2d_28.w_0'])
+            to_load_state_dict['out3.0.weight'] = torch.Tensor(_state[f'conv2d_29.w_0'])
+            to_load_state_dict['out2.weight'] = torch.Tensor(_state[f'conv2d_30.w_0'])
+
+            # ===> binarize
+            to_load_state_dict['binarize.0.weight'] = torch.Tensor(_state[f'conv2d_31.w_0'])
+
+            to_load_state_dict['binarize.1.weight'] = torch.Tensor(_state[f'batch_norm_23.w_0'])
+            to_load_state_dict['binarize.1.bias'] = torch.Tensor(_state[f'batch_norm_23.b_0'])
+            to_load_state_dict['binarize.1.running_mean'] = torch.Tensor(_state[f'batch_norm_23.w_1'])
+            to_load_state_dict['binarize.1.running_var'] = torch.Tensor(_state[f'batch_norm_23.w_2'])
+
+            to_load_state_dict['binarize.3.weight'] = torch.Tensor(_state[f'conv2d_transpose_0.w_0'])
+            to_load_state_dict['binarize.3.bias'] = torch.Tensor(_state[f'conv2_b_attr'])
+
+            to_load_state_dict['binarize.4.weight'] = torch.Tensor(_state[f'batch_norm_24.w_0'])
+            to_load_state_dict['binarize.4.bias'] = torch.Tensor(_state[f'batch_norm_24.b_0'])
+            to_load_state_dict['binarize.4.running_mean'] = torch.Tensor(_state[f'batch_norm_24.w_1'])
+            to_load_state_dict['binarize.4.running_var'] = torch.Tensor(_state[f'batch_norm_24.w_2'])
+
+            to_load_state_dict['binarize.6.weight'] = torch.Tensor(_state[f'conv2d_transpose_1.w_0'])
+            to_load_state_dict['binarize.6.bias'] = torch.Tensor(_state[f'conv3_b_attr'])
+
+            # ===> thresh
+            to_load_state_dict['thresh.0.weight'] = torch.Tensor(_state[f'conv2d_32.w_0'])
+
+            to_load_state_dict['thresh.1.weight'] = torch.Tensor(_state[f'batch_norm_25.w_0'])
+            to_load_state_dict['thresh.1.bias'] = torch.Tensor(_state[f'batch_norm_25.b_0'])
+            to_load_state_dict['thresh.1.running_mean'] = torch.Tensor(_state[f'batch_norm_25.w_1'])
+            to_load_state_dict['thresh.1.running_var'] = torch.Tensor(_state[f'batch_norm_25.w_2'])
+
+            to_load_state_dict['thresh.3.weight'] = torch.Tensor(_state[f'conv2d_transpose_2.w_0'])
+
+            to_load_state_dict['thresh.4.weight'] = torch.Tensor(_state[f'batch_norm_26.w_0'])
+            to_load_state_dict['thresh.4.bias'] = torch.Tensor(_state[f'batch_norm_26.b_0'])
+            to_load_state_dict['thresh.4.running_mean'] = torch.Tensor(_state[f'batch_norm_26.w_1'])
+            to_load_state_dict['thresh.4.running_var'] = torch.Tensor(_state[f'batch_norm_26.w_2'])
+
+            to_load_state_dict['thresh.6.weight'] = torch.Tensor(_state[f'conv2d_transpose_3.w_0'])
+
+            self.load_state_dict(to_load_state_dict)
+        else:
+            pass
 
     def forward(self, features, gt=None, masks=None, training=False):
         c2, c3, c4, c5 = features

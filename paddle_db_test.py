@@ -161,11 +161,13 @@ if __name__ == "__main__":
     args["image_short_side"] = ""
     args["result_dir"] = "/share_sdb/clj/DB/demo_results"
     args["polygon"] = False
+    args["paddle_model_path"] = "/share_sdb/clj/paddle/models/ch_ppocr_server_v1.1_det_train/best_accuracy"
 
     experiment_args.update(cmd=args)
     experiment = Configurable.construct_class_from_config(experiment_args)
 
     pred = Demo(experiment, args).inference(image_path)
     print(pred)
+    print(pred.shape)
 
 

@@ -15,6 +15,10 @@ class BasicModel(nn.Module):
         self.backbone = getattr(backbones, args['backbone'])(**args.get('backbone_args', {}))
         self.decoder = getattr(decoders, args['decoder'])(**args.get('decoder_args', {}))
 
+    def load_3rd_state_dict(self, _3rd_name, _state):
+        self.backbone.load_3rd_state_dict(_3rd_name, _state)
+        self.decoder.load_3rd_state_dict(_3rd_name, _state)
+
     def forward(self, data, *args, **kwargs):
         return self.decoder(self.backbone(data), *args, **kwargs)
 
@@ -36,16 +40,19 @@ class SegDetectorModel(nn.Module):
 
         self.model = BasicModel(args)
         # for loading models
-        self.model = parallelize(self.model, distributed, local_rank)
+        # self.model = parallelize(self.model, distributed, local_rank)
         self.criterion = SegDetectorLossBuilder(
             args['loss_class'], *args.get('loss_args', []), **args.get('loss_kwargs', {})).build()
-        self.criterion = parallelize(self.criterion, distributed, local_rank)
+        # self.criterion = parallelize(self.criterion, distributed, local_rank)
         self.device = device
         self.to(self.device)
 
     @staticmethod
     def model_name(args):
         return os.path.join('seg_detector', args['backbone'], args['loss_class'])
+
+    def load_3rd_state_dict(self, _3rd_name, _state):
+        self.model.load_3rd_state_dict(_3rd_name, _state)
 
     def forward(self, batch, training=True):
         if isinstance(batch, dict):

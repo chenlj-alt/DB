@@ -226,6 +226,16 @@ class ResNetVd(nn.Module):
             self.out_channels.append(in_channels)
             self.stages.append(nn.Sequential(*block_list))
 
+    def load_3rd_state_dict(self, _3rd_name, _state):
+        if _3rd_name == 'paddle':
+            for m_conv_index, m_conv in enumerate(self.conv1, 1):
+                m_conv.load_3rd_state_dict(_3rd_name, _state, f'conv1_{m_conv_index}')
+            for m_stage in self.stages:
+                for m_block in m_stage:
+                    m_block.load_3rd_state_dict(_3rd_name, _state)
+        else:
+            pass
+
     def forward(self, x):
         x = self.conv1(x)
         x = self.pool1(x)
